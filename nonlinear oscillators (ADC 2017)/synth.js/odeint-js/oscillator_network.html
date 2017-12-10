@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8"/>
+      <script type="application/javascript">
+
+var draw_time_series = function( data , k , ofs_x , ofs_y )
+{
+   var canvas = document.getElementById('canvas');
+   if ( canvas.getContext )
+   {
+      var ctx = canvas.getContext('2d');
+
+      var scale = 50;
+      ofs_x = ofs_x || 300;
+      ofs_y = ofs_y || 300;
+
+      ctx.beginPath();
+      ctx.strokeStyle = "rgba( 0, 0, 0, 0.8 )";
+      ctx.globalCompositeOperation = "overlay";
+      ctx.lineWidth = 1.5;
+
+      ctx.moveTo(  ofs_x  +  scale * data[0][k][0]
+                ,  ofs_y  +  scale * data[0][k][1] );
+
+      for ( var n = 1 ; n < data.length ; ++n )
+         ctx.lineTo(  ofs_x  +  scale * data[n][k][0]
+                   ,  ofs_y  +  scale * data[n][k][1] );
+
+      ctx.stroke();
+   }
+}
+
+
+var oscillator = function( freq , damp , torq )
+{
+   var w = freq || 1.;
+   var a = damp || 1.;
+   var c = torq || 0.;
+
+   return function( x , t )
+   {
+      var r = x[0] * x[0]  +  x[1] * x[1];
+      return [  a * x[0]  -  w * x[1]  -  r * (    x[0] - c * x[1])
+             ,  w * x[0]  +  a * x[1]  -  r * (c * x[0] +     x[1])
+             ];
+   }
+}
+
+var network = function()
+{
+   var oscs = [];
+   var n = 5;
+   while (n--) oscs[n] = oscillator( 0.6*n, 1., n*0.2 );
+
+   return function( x , t )
+   {
+
+      var mean_field_x = 0.
+      var mean_field_y = 0.
+      var n = oscs.length;
+      var y = [];
+      while (n--)
+      {
+         y[n] = oscs[n]( x[n] , t );
+         mean_field_x += y[n][0];
+         mean_field_y += y[n][1];
+      }
+
+      n = oscs.length;
+      mean_field_x /= n;
+      mean_field_y /= n;
+      while (n--)
+      {
+         y[n][0] -= 1.99*(.3*mean_field_x - .6*mean_field_x);
+         y[n][1] -= 1.99*(.6*mean_field_x + .3*mean_field_y);
+      }
+
+      return y
+   }
+}
+
+
+var draw_result = function()
+{
+   var xs =  odeint.integrate_const
+             (  odeint.runge_kutta_4
+             //,  oscillator(1,0.1,0.)
+             ,  network()
+             ,  [ [2,0] , [1,0] , [0,1] , [0,2] , [1,2] ]
+             ,  0.0 , 100. , 0.03
+             );
+
+   draw_time_series( xs , 0 , 100, 300 );
+   draw_time_series( xs , 1 , 250, 300 );
+   draw_time_series( xs , 2 , 400, 300 );
+   draw_time_series( xs , 3 , 550, 300 );
+   draw_time_series( xs , 4 , 700, 300 );
+}
+
+
+
+//  ----------------------------------------------------------------------------
+// Custom Audio Processor/Generator Node
+//  ----------------------------------------------------------------------------
+
+var make_processor = function( kernel, audioContext, bufferSize ) {
+
+    audioContext = audioContext || context
+
+    var node = audioContext.createScriptProcessor( bufferSize || 0 , 1, 1);
+    bufferSize = node.bufferSize
+
+    var block_process = function(p) {
+        return function(e) {
+            var input = e.inputBuffer.getChannelData(0);
+            var output = e.outputBuffer.getChannelData(0);
+            for (var i = 0; i < bufferSize; i++)
+                output[i] = p(input[i])
+        }
+    };
+
+    node.onaudioprocess = block_process( kernel );
+    return node;
+};
+
+
+//  ----------------------------------------------------------------------------
+// Generator/Processor Kernels
+//  ----------------------------------------------------------------------------
+
+var lorenz_generator = function( sigma, rho, beta )
+{
+   var state   = [ [2,0] , [1,0] , [0,1] , [0,2] , [1,2] ];
+   var t       = 0.0;
+   var dt      = 0.04;
+
+   var stepper = function()
+   {
+      state = odeint.runge_kutta_4( network(), state, t, dt );
+      t += dt;
+      return 0.3 * state[2][0];
+   }
+
+   //stepper.set_sigma = function(v) { sigma = v; };
+   //stepper.set_rho   = function(v) { rho = v;   };
+   //stepper.set_beta  = function(v) { beta = v;  };
+
+   return stepper;
+}
+
+
+var start_sound = function()
+{
+   var context = new AudioContext();
+
+   var master_gain = context.createGain();
+   master_gain.gain.value = 0.9;
+   master_gain.connect( context.destination );
+
+   var lorenz_gen = lorenz_generator( 10, 40, 5. )
+   var lorenz_synth = make_processor( lorenz_gen , context );
+   lorenz_synth.connect( master_gain );
+
+   draw_result();
+   //lorenz_gen.set_sigma(12);
+}
+
+
+
+
+
+      </script>
+
+   </head>
+
+   <body onload="start_sound();">
+      <canvas id="canvas" width="1000" height="800"></canvas>
+      <script src="odeint.js"></script>
+   </body>
+
+</html>

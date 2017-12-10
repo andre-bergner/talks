@@ -1,0 +1,70 @@
+
+--- Title ---
+
+Some Interesting Phenomena in Nonlinear Oscillators
+
+
+
+--- Abstract ---
+
+The world of sound and music is crucially depending on systems governed by strong nonlinear interactions.
+However, little is known about nonlinear phenomena in the audio and music community, despite the fact that
+research is done since over a century ago. In this presentation I will give a quick introduction into the
+field of nonlinear dynamics. I will explain two nonlinear phenomena which are ubiquitous in nature and such
+in the area of sound as well.
+
+The first is synchronization of oscillatory systems. I will provide some easy math to explain the abstract
+form of this effect and how and why this occurs. I will demonstrate it with coupled Moog filters. As an second
+example for an nonlinear phenomena I will to explain and demonstrate nonlinear resonance and hysteresis for
+a simple nonlinear filter.
+
+In the context of these nonlinear effects I will explain the general concept of bifurcation – a fundamental
+property of nonlinear systems only. Further I will demonstrate the nonlinear phenomena with some interactive
+audio application.
+
+
+
+
+--- Outline ---
+
+• What is nonlinear dynamics
+  • stating the problem
+  • Overview of research areas happening
+
+• Phenomena 1: Synchronization
+  • history and what it is
+  • self-sustained oscillators
+  • Deriving synchronization condition from Stuart Landau Oscillators
+  • Arnold Tongues
+
+• Phenomena 2: Nonlinear Resonance
+  • Duffing Oscillator as a prototype
+  • fold-over effect and hysteresis
+
+• Bifurcation
+  • explain the concept with an simple example
+  • Hopf Bifurcation
+
+• Conclusions
+
+
+--- Bio ---
+
+I'm working for Native Instruments as a team lead of the audio developer group.
+Lately I'm mainly involved in advanced C++ topics, software architecture and library design.
+I graduated from the University of Potsdam in physics with a PhD in complex system theory.
+
+
+
+André is working for Native Instruments as a team lead of the audio developer group.
+He is mainly involved in advanced C++ topics, software architecture and library design.
+He graduated from the University of Potsdam in physics with a PhD in complex system theory.
+
+
+
+
+
+
+
+
+

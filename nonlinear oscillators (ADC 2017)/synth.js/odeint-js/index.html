@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8"/>
+      <script type="application/javascript">
+
+var draw_time_series = function( data )
+{
+   var canvas = document.getElementById('canvas');
+   if ( canvas.getContext )
+   {
+      var ctx = canvas.getContext('2d');
+
+      scale = 10;
+      ofs_x = 300;
+      ofs_y = 100;
+
+      ctx.beginPath();
+      ctx.strokeStyle = "rgba( 0, 0, 0, 0.8 )";
+      ctx.globalCompositeOperation = "overlay";
+      ctx.lineWidth = 1.5;
+
+      ctx.moveTo(  ofs_x  +  scale * data[0][1]
+                ,  ofs_y  +  scale * data[0][2] );
+
+      for ( var n = 1 ; n < data.length ; ++n )
+         ctx.lineTo(  ofs_x  +  scale * data[n][1]
+                   ,  ofs_y  +  scale * data[n][2] );
+
+      ctx.stroke();
+   }
+}
+
+var lorenz = function( sigma, rho, beta )
+{
+   sigma = sigma || 10.
+   beta  = beta  || 8./3.
+   rho   = rho   || 28.
+
+   return function( x , t )
+   {
+      return [  sigma * ( x[1] - x[0] )
+             ,  x[0] * ( rho - x[2] ) - x[1]
+             ,  x[0] * x[1]  -  beta * x[2]
+             ];
+   }
+}
+
+var draw_lorenz = function()
+{
+   var xs =  odeint.integrate_const
+             (  odeint.runge_kutta_4
+             ,  lorenz()
+             ,  [1,1,0]
+             ,  0.0 , 100.0 , 0.01
+             );
+
+   draw_time_series( xs );
+}
+
+
+      </script>
+
+   </head>
+
+   <body onload="draw_lorenz();">
+      <canvas id="canvas" width="1000" height="800"></canvas>
+      <script src="odeint.js"></script>
+   </body>
+
+</html>

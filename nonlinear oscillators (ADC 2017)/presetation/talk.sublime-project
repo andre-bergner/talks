@@ -1,0 +1,12 @@
+{   "folders":
+    [   { "path": "./" }
+    ]
+,   "build_systems":
+    [   {   "name"  : "Nonlinear Oscillators Talk (ADC 2017, London)"
+        ,   "cmd"   : ["qmlscene main.qml"]
+        ,   "shell" : "true"
+        ,   "working_dir" : "${project_path:${folder:${file_path}}}"
+        }
+    ]
+}
+
